@@ -59,13 +59,13 @@ pub async fn get_expiring_certs(pool: &DbPool, threshold: i64) -> Result<Vec<(St
 }
 
 pub async fn create_dns_provider(pool: &DbPool, name: &str, provider_type: &str, credentials: &str) -> Result<i64, sqlx::Error> {
-    let id = sqlx::query("INSERT INTO dns_providers (name, provider_type, credentials) VALUES (?, ?, ?)")
+    let result = sqlx::query("INSERT INTO dns_providers (name, provider_type, credentials) VALUES (?, ?, ?)")
         .bind(name)
         .bind(provider_type)
         .bind(credentials)
         .execute(pool)
-        .await?
-        .last_insert_rowid();
+        .await?;
+    let id = result.last_insert_id().unwrap_or(0) as i64;
     Ok(id)
 }
 

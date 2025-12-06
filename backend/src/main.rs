@@ -54,9 +54,12 @@ fn main() {
     let state_for_init = state.clone();
 
     rt.block_on(async move {
-        // 2. DB 초기화
-        let db_url = "sqlite:data/data.db?mode=rwc";
-        let pool = db::init_db(db_url).await.expect("Failed to init DB");
+        // 2. DB 초기化
+        let db_config = db::DatabaseConfig::from_env().expect("Failed to parse database configuration");
+        tracing::info!("🗄️ Database type: {:?}", db_config.db_type);
+        tracing::info!("🗄️ Database URL: {}", db_config.url.split('@').last().unwrap_or("***"));
+        
+        let pool = db::init_db(&db_config).await.expect("Failed to init DB");
         
         // 초기 관리자 계정 생성 (없으면)
         let admin_exists = db::get_user(&pool, "admin").await.unwrap().is_some();

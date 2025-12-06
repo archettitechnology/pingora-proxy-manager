@@ -41,13 +41,13 @@ pub async fn create_user(pool: &DbPool, username: &str, password_hash: &str) -> 
 }
 
 pub async fn create_user_with_role(pool: &DbPool, username: &str, password_hash: &str, role: &str) -> Result<i64, sqlx::Error> {
-    let id = sqlx::query("INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)")
+    let result = sqlx::query("INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)")
         .bind(username)
         .bind(password_hash)
         .bind(role)
         .execute(pool)
-        .await?
-        .last_insert_rowid();
+        .await?;
+    let id = result.last_insert_id().unwrap_or(0) as i64;
     Ok(id)
 }
 

@@ -17,7 +17,7 @@ tracing = "0.1.43"
 tracing-subscriber = { version = "0.3.22", features = ["json", "env-filter"] }
 metrics = "0.24.1"
 metrics-exporter-prometheus = "0.18.0"
-sqlx = { version = "0.8.6", features = ["runtime-tokio", "tls-native-tls", "sqlite"] }
+sqlx = { version = "0.8.6", features = ["runtime-tokio", "tls-native-tls", "sqlite", "mysql", "any"] }
 tower-http = { version = "0.6.7", features = ["cors", "fs", "trace"] }
 x509-parser = "0.18.0"
 bytes = "1.11.0"

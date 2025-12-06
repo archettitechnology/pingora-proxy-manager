@@ -35,11 +35,11 @@ pub async fn get_access_list_ips(pool: &DbPool) -> Result<Vec<AccessListIpRow>, 
 }
 
 pub async fn create_access_list(pool: &DbPool, name: &str) -> Result<i64, sqlx::Error> {
-    let id = sqlx::query("INSERT INTO access_lists (name) VALUES (?)")
+    let result = sqlx::query("INSERT INTO access_lists (name) VALUES (?)")
         .bind(name)
         .execute(pool)
-        .await?
-        .last_insert_rowid();
+        .await?;
+    let id = result.last_insert_id().unwrap_or(0) as i64;
     Ok(id)
 }
 

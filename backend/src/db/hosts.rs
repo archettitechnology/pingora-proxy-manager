@@ -66,14 +66,14 @@ pub async fn get_all_headers(pool: &DbPool) -> Result<Vec<HeaderRow>, sqlx::Erro
 }
 
 pub async fn add_header(pool: &DbPool, host_id: i64, name: &str, value: &str, target: &str) -> Result<i64, sqlx::Error> {
-    let id = sqlx::query("INSERT INTO headers (host_id, name, value, target) VALUES (?, ?, ?, ?)")
+    let result = sqlx::query("INSERT INTO headers (host_id, name, value, target) VALUES (?, ?, ?, ?)")
         .bind(host_id)
         .bind(name)
         .bind(value)
         .bind(target)
         .execute(pool)
-        .await?
-        .last_insert_rowid();
+        .await?;
+    let id = result.last_insert_id().unwrap_or(0) as i64;
     Ok(id)
 }
 
