@@ -34,6 +34,7 @@ Simple, Modern, and Fast. Now supports Wildcard SSL & TCP/UDP Streams!
 - **🌐 Proxy Hosts:** Easy management of virtual hosts, locations, and path rewriting.
 - **📡 Streams (L4):** TCP and UDP forwarding for databases, game servers, etc.
 - **🛡️ Access Control:** IP whitelisting/blacklisting and Basic Authentication support.
+- **🗄️ Flexible Database:** Support for both SQLite (default) and MySQL/MariaDB backends.
 - **🎨 Modern Dashboard:** Clean and responsive UI built with React, Tailwind CSS, and shadcn/ui.
 - **🐳 Docker Ready:** Single container deployment for easy setup and maintenance.
 <img width="1302" height="724" alt="image" src="https://github.com/user-attachments/assets/aeb84f5a-5db8-4f8a-94cc-d355301907f4" />
@@ -121,13 +122,56 @@ If you want to build the image yourself:
    docker compose up --build -d
    ```
 
+## 🗄️ Database Options
+
+Pingora Proxy Manager supports both **SQLite** (default) and **MySQL/MariaDB** as database backends.
+
+### SQLite (Default)
+
+SQLite is the default database and requires no additional configuration. Data is stored in the `./data` directory.
+
+### MySQL/MariaDB
+
+To use MySQL or MariaDB instead of SQLite:
+
+1. **Using the MySQL Docker Compose file:**
+   ```bash
+   docker compose -f docker-compose.mysql.yml up --build -d
+   ```
+
+2. **Or configure manually:**
+   
+   Create a `.env` file based on `.env.example` and set:
+   ```env
+   DATABASE_TYPE=mysql
+   MYSQL_HOST=mysql
+   MYSQL_PORT=3306
+   MYSQL_USER=pingora
+   MYSQL_PASSWORD=your_secure_password
+   MYSQL_DATABASE=pingora_proxy
+   ```
+
+3. **Using an external MySQL/MariaDB server:**
+   
+   Set the connection string directly:
+   ```env
+   DATABASE_TYPE=mysql
+   DATABASE_URL=mysql://username:password@hostname:3306/database_name
+   ```
+
+**Important Notes:**
+- The database and user must exist before starting Pingora Proxy Manager
+- For production deployments, always use strong passwords
+- MySQL/MariaDB provides better performance and scalability for high-traffic deployments
+- The application automatically creates all required tables on first startup
+
 ## 🏗️ Architecture
 
 - **Data Plane (8080/443):** [Pingora](https://github.com/cloudflare/pingora) handles all traffic with high efficiency.
 - **Control Plane (81):** [Axum](https://github.com/tokio-rs/axum) serves the API and Dashboard.
 - **SSL Management:** Integrated `Certbot` for robust ACME handling.
 - **State Management:** `ArcSwap` for lock-free configuration reads.
-- **Database:** SQLite for persistent storage of hosts and certificates.
+- **Database:** SQLite (default) or MySQL/MariaDB for persistent storage of hosts and certificates.
 
 ## 📦 Development
 

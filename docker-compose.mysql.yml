@@ -1,0 +1,49 @@
+services:
+  mysql:
+    image: mariadb:latest
+    container_name: pingora-mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password_change_me
+      - MYSQL_DATABASE=pingora_proxy
+      - MYSQL_USER=pingora
+      - MYSQL_PASSWORD=pingora_password_change_me
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"  # Expose MySQL port for external access
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pingora-proxy:
+    build: .
+    image: pingora-proxy-manager:latest
+    container_name: pingora-proxy
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "80:8080"   # HTTP Proxy
+      - "81:81"     # Dashboard/API
+      - "443:443"   # HTTPS Proxy
+    volumes:
+      - ./data:/app/data        # Certs and other data
+      - ./logs:/app/logs        # Logs persistence
+    environment:
+      - JWT_SECRET=changeme_in_production_please
+      - RUST_LOG=info
+      # MySQL Database Configuration
+      - DATABASE_TYPE=mysql
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_USER=pingora
+      - MYSQL_PASSWORD=pingora_password_change_me
+      - MYSQL_DATABASE=pingora_proxy
+
+volumes:
+  mysql-data:
+    driver: local

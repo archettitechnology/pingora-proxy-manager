@@ -14,8 +14,42 @@ services:
       # If backend binds 8080 for HTTP, usually it binds 8443 for HTTPS.
       # Let's stick to 80->8080 and 81->81 for now as per main.rs logic.
     volumes:
-      - ./data:/app/data        # DB and Certs persistence
+      - ./data:/app/data        # DB and Certs persistence (for SQLite)
       - ./logs:/app/logs        # Logs persistence
     environment:
       - JWT_SECRET=changeme_in_production_please
       - RUST_LOG=info
+      # Database configuration
+      # For SQLite (default):
+      - DATABASE_TYPE=sqlite
+      - DATABASE_URL=sqlite:data/data.db?mode=rwc
+      # For MySQL/MariaDB (uncomment and configure):
+      # - DATABASE_TYPE=mysql
+      # - MYSQL_HOST=mysql
+      # - MYSQL_PORT=3306
+      # - MYSQL_USER=pingora
+      # - MYSQL_PASSWORD=pingora_password
+      # - MYSQL_DATABASE=pingora_proxy
+      # Or use a full connection string:
+      # - DATABASE_URL=mysql://pingora:pingora_password@mysql:3306/pingora_proxy
+    # depends_on:
+    #   - mysql  # Uncomment if using MySQL
+
+  # MySQL/MariaDB service (optional)
+  # Uncomment this section to use MySQL/MariaDB instead of SQLite
+  # mysql:
+  #   image: mariadb:latest
+  #   container_name: pingora-mysql
+  #   restart: always
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=root_password
+  #     - MYSQL_DATABASE=pingora_proxy
+  #     - MYSQL_USER=pingora
+  #     - MYSQL_PASSWORD=pingora_password
+  #   volumes:
+  #     - mysql-data:/var/lib/mysql
+  #   ports:
+  #     - "3306:3306"  # Expose MySQL port (optional, for external access)
+
+# volumes:
+#   mysql-data:  # Uncomment if using MySQL
